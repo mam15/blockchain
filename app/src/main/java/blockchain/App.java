@@ -3,17 +3,41 @@
  */
 package blockchain;
 
+import java.security.Security;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gson.GsonBuilder;
 
 import blockchain.obj.Block;
+import blockchain.obj.Transaction;
+import blockchain.obj.TransactionOutput;
+import blockchain.obj.Wallet;
+import blockchain.util.StringUtil;
 
 public class App {
     public static ArrayList<Block> blockchain = new ArrayList<Block>();
     public static int difficulty = 5;
+    public static Wallet walletA;
+    public static Wallet walletB;
+    public static HashMap<String, TransactionOutput> UTXOs = new HashMap<String, TransactionOutput>();
 
     public static void main(String[] args) {
+
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+        walletA = new Wallet();
+        walletB = new Wallet();
+
+        System.out.println("Private and public keys: ");
+        System.out.println(StringUtil.getStringFromKey(walletA.privateKey));
+        System.out.println(StringUtil.getStringFromKey(walletA.publicKey));
+
+        Transaction transaction = new Transaction(walletA.publicKey, walletB.publicKey, 5, null);
+        transaction.generateSignature(walletA.privateKey);
+
+        System.out.println("Is signature verified: ");
+        System.out.println(transaction.verifySignature());
         // Genesis block
         blockchain.add(new Block("Genesis", "0"));
         blockchain.get(0).mineBlock(difficulty);
